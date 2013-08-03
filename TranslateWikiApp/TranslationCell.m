@@ -33,7 +33,8 @@
 
 @synthesize suggestionCells;
 @synthesize msg;
-@synthesize documentation;
+//@synthesize documentation;
+@synthesize docWebView;
 @synthesize isExpanded;
 @synthesize isMinimized;
 
@@ -121,15 +122,18 @@
         [self setSelectionStyle:UITableViewCellSelectionStyleNone];
         
         //setting view
-        [documentation performSelectorOnMainThread:@selector(setText:) withObject:msg.documentation waitUntilDone:NO];
-        UIColor* textColor=msg.noDocumentation ? [UIColor lightGrayColor] : [UIColor blackColor];
-        [documentation performSelectorOnMainThread:@selector(setTextColor:) withObject:textColor waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(displayHTML:) withObject:msg.documentation waitUntilDone:NO];
         [infoView setFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
         [self bringSubviewToFront:infoView];
     }
     
     [self bringSubviewToFront:infoBtn];
 
+}
+
+-(void)displayHTML:(NSString*)html
+{
+    [docWebView loadHTMLString:html baseURL:nil];
 }
 
 - (IBAction)pushInfo:(id)sender {
@@ -146,12 +150,10 @@
         [[self inputView] setUserInteractionEnabled:NO];
         
         //setting view
-        [documentation performSelectorOnMainThread:@selector(setText:) withObject:msg.documentation waitUntilDone:NO];
-        UIColor* textColor=msg.noDocumentation ? [UIColor lightGrayColor] : [UIColor blackColor];
-        [documentation performSelectorOnMainThread:@selector(setTextColor:) withObject:textColor waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(displayHTML:) withObject:msg.documentation waitUntilDone:NO];
         [infoView setFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
         [infoView setHidden:NO];
-        [documentation setFrame:CGRectMake(documentation.frame.origin.x, documentation.frame.origin.y, documentation.frame.size.width, self.frame.size.height-21-10-12)];//(10,21) are the origin and height of the first label - "Documentation:"
+        [docWebView setFrame:CGRectMake(docWebView.frame.origin.x, docWebView.frame.origin.y, docWebView.frame.size.width, self.frame.size.height-21-10-12)];//(10,21) are the origin and height of the first label - "Documentation:"
         [UIView transitionWithView:self
                           duration:0.5
                            options:UIViewAnimationOptionTransitionFlipFromLeft
@@ -177,6 +179,7 @@
                         completion:nil];
     }
 }
+
 /*
 - (void)setExpanded:(NSNumber*)expNumber
 {
